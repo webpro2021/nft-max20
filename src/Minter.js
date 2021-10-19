@@ -161,6 +161,8 @@ const Minter = (props) => {
         setBearNumber()
       })
       .catch(async(error) => {
+        const totalSupply = await contract.methods.totalSupply().call()
+        setCurrentTotal(totalSupply)
         setMintLoading(false)
       })
     } catch (error) {
