@@ -15,7 +15,7 @@ const Minter = (props) => {
 
   // const [metaData, setMetaData] = useState([])
   const [newMint, setNewMint] = useState([])
-  const [bearNumber, setBearNumber] = useState(0)
+  const [bearNumber, setBearNumber] = useState(1)
   const [currentTotal, setCurrentTotal] = useState(0)
 
   useEffect(async () => {
@@ -210,7 +210,7 @@ const Minter = (props) => {
             <h2 style={{textAlign: 'center'}}>
               <span style={{float: "left"}}>AMOUNT</span>
               <span>
-                <input type="button" className="incDecButton" value="-" onClick={() => (bearNumber > 0) && setBearNumber(bearNumber - 1)} />
+                <input type="button" className="incDecButton" value="-" onClick={() => (bearNumber > 1) && setBearNumber(bearNumber - 1)} />
                 {bearNumber}
                 <input type="button" className="incDecButton" value="+" onClick={() => (bearNumber < 20) && setBearNumber(bearNumber + 1)} />
               </span>
