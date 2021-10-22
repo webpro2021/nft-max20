@@ -3,41 +3,44 @@ import {
   connectWallet,
   getCurrentWalletConnected,
 } from "./util/interact.js";
-import {chainId, contractAddress} from './constants/address';
+import {chainId, contractAddress, ownerAddress} from './constants/address';
 import { ethers } from 'ethers'
 import Web3 from "web3";
 
 const Minter = (props) => {
   const [walletAddress, setWallet] = useState("");
   const [status, setStatus] = useState("");
+  const [balance, setBalance] = useState(0)
 
   const [mintLoading, setMintLoading] = useState(false)
-
-  // const [metaData, setMetaData] = useState([])
-  const [newMint, setNewMint] = useState([])
   const [bearNumber, setBearNumber] = useState(1)
   const [currentTotal, setCurrentTotal] = useState(0)
 
   useEffect(async () => {
     const { address, status } = await getCurrentWalletConnected();
+    addWalletListener();
 
-    const contractABI = require("./contract-abi.json")
     window.web3 = new Web3(window.ethereum)
+    const contractABI = require("./contract-abi.json")
     const contract = new window.web3.eth.Contract(contractABI, contractAddress)
-
+    
     const totalSupply = await contract.methods.totalSupply().call()
     setCurrentTotal(totalSupply)
     setWallet(address);
     setStatus(status);
-
-    addWalletListener();
+    const walletBalance = await window.web3.eth.getBalance(address.toLowerCase())
+    setBalance(walletBalance)
   }, []);
 
-  function addWalletListener() {
+  const addWalletListener = () => {
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", (accounts) => {
         if (accounts.length > 0) {
           setWallet(accounts[0]);
+          window.web3 = new Web3(window.ethereum)
+          window.web3.eth.getBalance(accounts[0].toLowerCase()).then(res => {
+            setBalance(res)
+          })
           setStatus("👆🏽 You can mint new pack now.");
         } else {
           setWallet("");
@@ -71,6 +74,18 @@ const Minter = (props) => {
     const walletResponse = await connectWallet();
     setStatus(walletResponse.status);
     setWallet(walletResponse.address);
+    window.web3 = new Web3(window.ethereum)
+    if(walletResponse.address) {
+      const walletBalance = await window.web3.eth.getBalance(walletResponse.address.toLowerCase())
+      setBalance(walletBalance)
+    } else {
+      setBalance(0)
+    }
+    const contractABI = require("./contract-abi.json")
+    const contract = new window.web3.eth.Contract(contractABI, contractAddress)
+
+    const totalSupply = await contract.methods.totalSupply().call()
+    setCurrentTotal(totalSupply)
   };
 
   const onMintPressed = async () => {
@@ -83,7 +98,7 @@ const Minter = (props) => {
     const totalSupply = await contract.methods.totalSupply().call()
     setCurrentTotal(totalSupply)
 
-    if((30 - totalSupply) < bearNumber) {
+    if((10000 - totalSupply) < bearNumber) {
       alert("mint number must be lower than limit")
       setMintLoading(false)
       return
@@ -95,6 +110,7 @@ const Minter = (props) => {
     }
 
     var mintArr = []
+    var tokenURI = []
     var pinataResponseArr = []
     if(bearNumber > 20) {
       alert('max mint number is 20')
@@ -102,47 +118,61 @@ const Minter = (props) => {
       return
     }
 
-    console.log(bearNumber);
-
-    for(var i=0; i< bearNumber; i++) {
-      var num = parseInt(Math.random()* 30)
-      var ImgStatus = await contract.methods.ImgStatus(num).call()
-
-      if (!ImgStatus && !mintArr.includes(num) && num != 0) {
-        mintArr.push(num)
-      } else {
-        num = parseInt(Math.random()* 30)
-        ImgStatus = await contract.methods.ImgStatus(num).call()
-
-        while(ImgStatus || mintArr.includes(num) || num == 0) {
-          num = parseInt(Math.random()* 30)
-          ImgStatus = await contract.methods.ImgStatus(num).call()
-        }
-        mintArr.push(num)
+    if(walletAddress.toLocaleLowerCase() === ownerAddress.toLocaleLowerCase()) {
+      var currentOwnerSupply = await contract.methods.ownerSupply().call()
+      var numm = parseInt(currentOwnerSupply) + 1
+      for(var j=numm ; j< numm+bearNumber; j++) {
+        mintArr.push(j)
+        var pinataResponsee = getMultiHash(j)
+        pinataResponseArr.push(pinataResponsee)
       }
-      var pinataResponse = getMultiHash(num)
-      pinataResponseArr.push(pinataResponse)
+    } else {
+      for(var i=0; i< bearNumber; i++) {
+        var num = getRndInteger(500, 10000) //getRndInteger(500, 10000)
+        var ImgStatus = await contract.methods.ImgStatus(num).call()
+  
+        if (!ImgStatus && !mintArr.includes(num)) {
+          mintArr.push(num)
+        } else {
+          num = getRndInteger(500, 10000) //getRndInteger(500, 10000)
+          ImgStatus = await contract.methods.ImgStatus(num).call()
+  
+          while(ImgStatus || mintArr.includes(num)) {
+            num = getRndInteger(500, 10000) //getRndInteger(500, 10000)
+            ImgStatus = await contract.methods.ImgStatus(num).call()
+          }
+          mintArr.push(num)
+        }
+        var pinataResponse = getMultiHash(num)
+        pinataResponseArr.push(pinataResponse)
+      }
     }
 
-    const tokenURI = pinataResponseArr
+    tokenURI = pinataResponseArr
     console.log(mintArr);
     console.log(tokenURI);
     
     const price = await contract.methods.price(bearNumber).call()
-    // const price = 1e14 * bearNumber
     const amountIn = ethers.BigNumber.from(price.toString()).toHexString();
-
-    console.log(amountIn/ 1e18);
 
     let ABI = ["function mintPack(string[] memory tokenURI, uint256[] memory mintedImg)"]
     let iface = new ethers.utils.Interface(ABI)
     let dataParam = iface.encodeFunctionData("mintPack", [ tokenURI, mintArr])
 
-    const transactionParameters = {
-      to: contractAddress, // Required except during contract publications.
-      from: walletAddress, // must match user's active address.
-      data: dataParam,
-      value: amountIn,
+    var transactionParameters = {}
+    if(walletAddress.toLocaleLowerCase() === ownerAddress.toLocaleLowerCase()) {
+      transactionParameters = {
+        to: contractAddress, // Required except during contract publications.
+        from: walletAddress, // must match user's active address.
+        data: dataParam,
+      }
+    } else {
+      transactionParameters = {
+        to: contractAddress, // Required except during contract publications.
+        from: walletAddress, // must match user's active address.
+        data: dataParam,
+        value: amountIn,
+      }
     }
 
     contract.events.MintPack({toblock: 'latest'}, async (error, event) => {
@@ -160,10 +190,6 @@ const Minter = (props) => {
           setMintLoading(false)
           const totalSupply = await contract.methods.totalSupply().call()
           setCurrentTotal(totalSupply)
-          if ( to === ethers.utils.getAddress(walletAddress) ) {
-            let tokenId = ethers.BigNumber.from(newId).toNumber()
-            setNewMint([tokenId])
-          }
         })
         setBearNumber()
       })
@@ -174,6 +200,10 @@ const Minter = (props) => {
         setStatus("😥 Something went wrong: " + error.message)
         setMintLoading(false)
     }
+  }
+
+  const getRndInteger = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
   }
 
   return (
@@ -205,7 +235,7 @@ const Minter = (props) => {
           </div>
           <div>
           <div style={{padding: '10px 0px'}}>
-            <h2>ETH BALANCE <span style={{float: "right"}}>0 ETH </span></h2>
+            <h2>ETH BALANCE <span style={{float: "right"}}>{(balance/1e18).toFixed(4)} ETH </span></h2>
           </div>
             <h2 style={{textAlign: 'center'}}>
               <span style={{float: "left"}}>AMOUNT</span>
@@ -228,7 +258,6 @@ const Minter = (props) => {
               Mint
             </button>
           }
-
         
           <br></br>
 
