@@ -67,11 +67,11 @@ export default function ConnectButton({
               .toBase58()
               .substring(wallet!.publicKey.toBase58().length - 5)}`
           : "Connect Wallet"} */}
-          <Link to="mintmeb" style={{textDecoration: 'none', color: 'white'}}>
-            { metaState.isAvailable && metaState.isConnected
-              ? `${metaState.account[0]}`.toString().substring(2, 9) + '...' + `${metaState.account[0]}`.toString().substring(`${metaState.account[0]}`.toString().length - 6)
-              : "Mint MEB"}
-          </Link>
+        <Link to="mintmeb" style={{textDecoration: 'none', color: 'black'}}>
+          { metaState.isAvailable && metaState.isConnected
+          ? `${metaState.account[0]}`.toString().substring(2, 9) + '...' + `${metaState.account[0]}`.toString().substring(`${metaState.account[0]}`.toString().length - 6)
+          : "Mint MEB"}
+        </Link>
       </PrimaryButton>
       <div className={`nc-dropdown `}>
         <WalletList />

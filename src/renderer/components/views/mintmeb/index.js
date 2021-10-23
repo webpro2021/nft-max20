@@ -6,7 +6,9 @@ import {
 import {chainId, contractAddress, ownerAddress} from '../../../../constants/address';
 import { ethers } from 'ethers'
 import Web3 from "web3";
+import { toast, ToastContainer } from 'react-toastify'
 import './index.css'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Minter = () => {
   const [walletAddress, setWallet] = useState("");
@@ -16,6 +18,8 @@ const Minter = () => {
   const [mintLoading, setMintLoading] = useState(false)
   const [bearNumber, setBearNumber] = useState(1)
   const [currentTotal, setCurrentTotal] = useState(0)
+  const [mintedNew, setMintedNew] = useState(false)
+  const [mintedId, setMintedId] = useState("")
 
   useEffect(async () => {
     const { address, status } = await getCurrentWalletConnected();
@@ -182,6 +186,21 @@ const Minter = () => {
     contract.events.MintPack({toblock: 'latest'}, async (error, event) => {
       const totalSupply = await contract.methods.totalSupply().call()
       setCurrentTotal(totalSupply)
+      const walletBalance = await window.web3.eth.getBalance(walletAddress  .toLowerCase())
+      setBalance(walletBalance)
+      toast.info('Minted successfully', {
+        position: "top-center",
+        autoClose: 3000,
+        // hideProgressBar: true,
+      })
+      var mintedNum = ""
+      for(var i=bearNumber-1; i >= 0; i--) {
+        mintedNum += totalSupply - i
+        mintedNum += ', '
+      }
+
+      setMintedId(mintedNum.substring(0, mintedNum.length - 2))
+      setMintedNew(true)
     })
 
     try {
@@ -213,7 +232,7 @@ const Minter = () => {
   return (
     <>
       <div className="walletConnect">
-        <button id="walletButton" onClick={connectWalletPressed}>
+        <button id="walletButton" onClick={connectWalletPressed} className="butn">
             {walletAddress.length > 0 ? (
               "Connected: " +
               String(walletAddress).substring(0, 6) +
@@ -254,11 +273,15 @@ const Minter = () => {
           <div style={{padding: '10px 0px'}}>
             <h2>TOTAL BALANCE <span style={{float: "right"}}>{(0.1 * bearNumber).toFixed(1)} ETH </span></h2>
           </div>
+          {mintedNew && <div style={{padding: '10px 0px'}}>
+            <h2>MINTED NEW <span style={{float: "right"}}>{mintedId}</span></h2>
+          </div>
+          }
           {/* <p>Max mint number is 20...</p> */}
           { mintLoading?
             "Loading.."
             :
-            <button id="mintButton" onClick={onMintPressed}>
+            <button id="mintButton" onClick={onMintPressed} className="butn">
               Mint
             </button>
           }
@@ -272,6 +295,7 @@ const Minter = () => {
           </p>
         </div>
       </div>
+      <ToastContainer pauseOnFocusLoss={false} />
     </>
   );
 };

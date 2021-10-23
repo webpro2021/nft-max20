@@ -41,7 +41,7 @@ export default function Main(): JSX.Element {
           <Route exact path="/">
             <HomePage />
           </Route>
-          <Route exact path="/mintmeb">
+          <Route path="/mintmeb">
             <MintPage />
           </Route>
         </Switch>

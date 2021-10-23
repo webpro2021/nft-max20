@@ -201,7 +201,7 @@ export default function Metaverse(): JSX.Element {
 
   return (
     <>
-     <p className="metaverse-title">Gaming and Metaverse</p>
+     <p className="metaverse-title" id="gaming">Gaming and Metaverse</p>
      <div className="game-title">
         <p>Welcome to the Mutant Ether Babies Gaming and Metaverse section.</p>
         <p>All updates regarding our gaming and metaverse will be uploaded in this section of the website.</p>
