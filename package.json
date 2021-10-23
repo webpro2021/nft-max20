@@ -41,6 +41,7 @@
         "react-responsive": "^9.0.0-beta.3",
         "react-router-dom": "^5.2.0",
         "react-scripts": "^4.0.3",
+        "react-toastify": "^7.0.4",
         "react-spring-3d-carousel-2": "^1.0.1",
         "reactstrap": "^8.9.0",
         "redux": "^4.0.1",
