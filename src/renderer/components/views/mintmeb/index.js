@@ -258,10 +258,10 @@ const Minter = () => {
           </div>
           <div>
           <div style={{padding: '10px 0px'}}>
-            <h2>ETH BALANCE <span style={{float: "right"}}>{(balance/1e18).toFixed(4)} ETH </span></h2>
+            <h2>Eth Balance <span style={{float: "right"}}>{(balance/1e18).toFixed(4)} ETH </span></h2>
           </div>
             <h2 style={{textAlign: 'center'}}>
-              <span style={{float: "left"}}>AMOUNT</span>
+              <span style={{float: "left"}}>Amount</span>
               <span>
                 <input type="button" className="incDecButton" value="-" onClick={() => (bearNumber > 1) && setBearNumber(bearNumber - 1)} />
                 {bearNumber}
@@ -271,10 +271,10 @@ const Minter = () => {
             </h2>
           </div>
           <div style={{padding: '10px 0px'}}>
-            <h2>TOTAL BALANCE <span style={{float: "right"}}>{(0.1 * bearNumber).toFixed(1)} ETH </span></h2>
+            <h2>Total Balance <span style={{float: "right"}}>{(0.1 * bearNumber).toFixed(1)} ETH </span></h2>
           </div>
           {mintedNew && <div style={{padding: '10px 0px'}}>
-            <h2>MINTED NEW <span style={{float: "right"}}>{mintedId}</span></h2>
+            <h2>New Meb ID <span style={{float: "right"}}>{mintedId}</span></h2>
           </div>
           }
           {/* <p>Max mint number is 20...</p> */}
