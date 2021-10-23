@@ -31,11 +31,16 @@ input:focus {
 
 h1 {
   font-family: Days One !important;
+  font-size: 45px;
 }
 
 h2, p {
   font-family: Days One !important;
   font-weight: 100;
+}
+
+h2 {
+  font-size: 22px;
 }
 
 #status {
@@ -96,7 +101,6 @@ button:hover {
 } */
 
 #mintButton {
-  margin-top: 40px;
   width: 100%;
 }
 
@@ -115,7 +119,7 @@ button:hover {
   width: 65%;
   margin: auto;
   text-align: left;
-  margin-top: 10%;
+  margin-top: 4%;
 }
 
 .incDecButton {
