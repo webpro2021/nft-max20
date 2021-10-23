@@ -281,7 +281,7 @@ const Minter = () => {
           { mintLoading?
             "Loading.."
             :
-            <button id="mintButton" onClick={onMintPressed} className="butn">
+            <button id="mintButton" onClick={onMintPressed} className="butn2 btn-custom-button">
               Mint
             </button>
           }
@@ -290,7 +290,7 @@ const Minter = () => {
 
           <p />
 
-          <p id="status" style={{ color: "red" }}>
+          <p id="status" style={{ color: "white" }}>
             {status}
           </p>
         </div>
